@@ -1,0 +1,91 @@
+set3
+========================================================
+
+Loading ggplot and data
+
+```{r Loading ggplot and data}
+library(ggplot2); data(diamonds)
+summary(diamonds)
+
+```
+
+Number of observations in data set
+```{r Number of observations in data set}
+dim(diamonds)[1]
+```
+Number of variables
+```{r Number of variables}
+dim(diamonds)[2]
+```
+Number of ordered factors
+```{r Number of ordered factors}
+str(diamonds)
+```
+Create a histogram of the price of
+all the diamonds in the diamond data set.
+```{r histogram of diamonds price}
+qplot(x =price, data = diamonds, binwidth = 10) + 
+  scale_x_continuous(limits = c(300, 19000), breaks = seq(0,  19000, 1000))
+```
+Exploring the largest peak in price
+```{r Exploring the largest peak in price}
+qplot(x =price, data = diamonds, binwidth = 10) + 
+  scale_x_continuous(limits = c(500, 2000)) 
+ggsave("diamonds.peak.png")
+```
+Diamond prices by cut histogram
+```{r Diamond prices by cut histogram}
+qplot(x =price, data = diamonds, binwidth = 10) + 
+  scale_x_continuous(limits = c(300, 19000), breaks = seq(0,  19000, 1000)) +
+  facet_wrap(~cut, 1)
+```
+Diamond prices by cut frequency polygon
+```{r Diamond prices by cut frequency polygon}
+qplot(x=price, data=diamonds, binwidth=40, geom='freqpoly', color=cut, xlim=c(200, 19000))
+```
+Cuts with the highest, lowest priced diamond
+```{r Cuts with the highest priced diamond}
+by(diamonds$price, diamonds$cut, max)
+by(diamonds$price, diamonds$cut, min)
+```
+Diamond prices by cut histogram with no fixed y
+```{r Diamond prices by cut histogram with no fixed y}
+qplot(x =price, data = diamonds, binwidth = 50, color = I("black"), fill = I("#099DD9")) + 
+  scale_x_continuous(limits = c(300, 19000), breaks = seq(0,  19000, 1000)) +
+  facet_wrap(~cut,ncol = 1, scale = "free_y")
+```
+Price/carat histogram
+```{r Price/carat histogram}
+qplot(x = price / carat, data = diamonds,  binwidth = 0.005, color = I("black"), fill = I("#099DD9")) + facet_wrap(~cut,ncol = 1, scale = "free_y") + scale_x_log10()
+```
+Boxplots by cut, color, clarity
+```{r Boxplots by cut, color, clarity}
+qplot(x = cut, y = price, data = diamonds, geom = "boxplot") 
+by(diamonds$price, diamonds$cut, summary)
+qplot(x = color, y = price, data = diamonds, geom = "boxplot") 
+by(diamonds$price, diamonds$color, IQR)
+qplot(x = clarity, y = price, data = diamonds, geom = "boxplot") 
+IQR(subset)
+?diamonds
+```
+Price/carat boxplot across colors
+```{r}
+qplot(x = color, y = price / carat, data = diamonds, geom = "boxplot", color = cut)
+```
+Carat frequency polygon
+```{r Carat frequency polygon}
+qplot(x = carat, data = diamonds, geom = "freqpoly", binwidth = 0.02) + scale_x_discrete(breaks = seq(0, 5.01, 0.04))
+summary(diamonds$carat)
+table(diamonds$carat)[table(diamonds$carat)>2000] 
+```
+Subsetting the best and worst diamonds and plotting
+```{r Subsetting the best and worst diamonds and plotting}
+rock <- subset(diamonds,cut == "Fair" & color == "J" & clarity == "I1")
+ideal <- subset(diamonds,cut == "Ideal" & color == "D" & clarity == "IF")
+p1 <- qplot(x=carat, y = price/carat, data = rock) + scale_x_continuous(lim=c(0,5.5)) + scale_y_continuous(lim=c(0,5000)) + labs( title="Low Quality Diamonds" )
+p2 <- qplot(x=carat, y = price/carat, data = ideal) + scale_x_continuous(lim=c(0,1.2)) + scale_y_continuous(lim=c(0,18000)) + labs(title = "High Quality Diamonds")
+library(gridExtra)
+grid.arrange(p1,p2, ncol =1)
+```
+
+
